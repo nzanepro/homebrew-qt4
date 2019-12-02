@@ -16,7 +16,7 @@ class Puddletag < Formula
   end
 
   depends_on "python@2" if MacOS.version <= :snow_leopard
-  depends_on "cartr/qt4/pyqt@4"
+  depends_on "nzanepro/qt4/pyqt@4"
   depends_on "chromaprint" => :recommended
 
   resource "pyparsing" do

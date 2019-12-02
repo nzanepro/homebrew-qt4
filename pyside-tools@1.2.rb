@@ -19,7 +19,7 @@ class PysideToolsAT12 < Formula
   end
 
   depends_on "cmake" => :build
-  depends_on "cartr/qt4/pyside@1.2"
+  depends_on "nzanepro/qt4/pyside@1.2"
 
   def install
     system "cmake", ".", "-DSITE_PACKAGE=lib/python2.7/site-packages", *std_cmake_args

@@ -14,13 +14,13 @@ class QtAT4 < Formula
     url "https://raw.githubusercontent.com/Homebrew/formula-patches/480b7142c4e2ae07de6028f672695eb927a34875/qt/el-capitan.patch"
     sha256 "c8a0fa819c8012a7cb70e902abb7133fc05235881ce230235d93719c47650c4e"
   end
-  
+
   # Backport of Qt5 patch to fix an issue with null bytes in QSetting strings.
   patch do
     url "https://raw.githubusercontent.com/cartr/homebrew-qt4/41669527a2aac6aeb8a5eeb58f440d3f3498910a/patches/qsetting-nulls.patch"
     sha256 "0deb4cd107853b1cc0800e48bb36b3d5682dc4a2a29eb34a6d032ac4ffe32ec3"
   end
-  
+
   # Patch to fix build on macOS High Sierra
   patch :p0 do
     url "https://raw.githubusercontent.com/cartr/homebrew-qt4/c957b2d755c762b77142e35f68cddd7f0986bc7b/patches/qt4-versions-without-underscores.patch"
@@ -47,7 +47,7 @@ class QtAT4 < Formula
 
   option "with-docs", "Build documentation"
 
-  depends_on "openssl"
+  depends_on "nzanepro/qt4/openssl@1.0"
   depends_on "dbus" => :optional
   depends_on "mysql" => :optional
   depends_on "postgresql" => :optional
@@ -109,8 +109,8 @@ class QtAT4 < Formula
     args << "-no-phonon" if MacOS.version >= :sierra || MacOS::Xcode.version >= "8.0"
 
     args << "-openssl-linked"
-    args << "-I" << Formula["openssl"].opt_include
-    args << "-L" << Formula["openssl"].opt_lib
+    args << "-I" << Formula["openssl@1.0"].opt_include
+    args << "-L" << Formula["openssl@1.0"].opt_lib
 
     args << "-plugin-sql-mysql" if build.with? "mysql"
     args << "-plugin-sql-psql" if build.with? "postgresql"
@@ -127,7 +127,7 @@ class QtAT4 < Formula
     args << "-nomake" << "docs" if build.without? "docs"
 
     args << "-arch" << "x86_64"
-    
+
     # Patch macdeployqt so it finds the plugin path
     inreplace "tools/macdeployqt/macdeployqt/main.cpp", '"/Developer/Applications/Qt/plugins"', "\"#{HOMEBREW_PREFIX}/lib/qt4/plugins\""
     inreplace "tools/macdeployqt/macdeployqt/main.cpp", 'deploymentInfo.qtPath + "/plugins"', "\"#{HOMEBREW_PREFIX}/lib/qt4/plugins\""
@@ -136,12 +136,12 @@ class QtAT4 < Formula
     system "make"
     ENV.deparallelize
     system "make", "install"
-    
+
     # Delete qmake, as we'll be rebuilding it
     system "rm", "bin/qmake"
     system "rm", "#{bin}/qmake"
     system "make", "clean"
-    
+
     # Patch the configure script so the built qmake can find Webkit if installed
     inreplace "configure", '=$QT_INSTALL_PREFIX"`', "=#{HOMEBREW_PREFIX}\"`"
     inreplace "configure", '=$QT_INSTALL_DOCS"`', "=#{HOMEBREW_PREFIX}/doc\"`"
@@ -170,7 +170,7 @@ class QtAT4 < Formula
     Pathname.glob("#{lib}/*.framework/Headers") do |path|
       include.install_symlink path => path.parent.basename(".framework")
     end
-    
+
     # Make `HOMEBREW_PREFIX/lib/qt4/plugins` an additional plug-in search path
     # for Qt Designer to support formulae that provide Qt Designer plug-ins.
     system "/usr/libexec/PlistBuddy",
@@ -185,7 +185,7 @@ class QtAT4 < Formula
     If this is unacceptable you should uninstall.
 
     Phonon is not supported on macOS Sierra or with Xcode 8.
-    
+
     WebKit is no longer included for security reasons. If you absolutely
     need it, it can be installed with `brew install qt-webkit@2.3`.
     EOS
@@ -198,7 +198,7 @@ class QtAT4 < Formula
     system "make"
     assert_match(/GitHub/, pipe_output(testpath/"qtnetwork-test 2>&1", nil, 0))
   end
-  
+
   bottle do
     root_url "https://dl.bintray.com/cartr/autobottle-qt4"
     sha256 "953fb1a4d035039a109079aa01e15bf1fc002060d2d7fe14540542efb5665d9e" => :mojave

@@ -20,7 +20,7 @@ class PopplerQt4 < Formula
   depends_on "libpng"
   depends_on "libtiff"
   depends_on "openjpeg"
-  depends_on "cartr/qt4/qt@4" => :optional
+  depends_on "nzanepro/qt4/qt@4" => :optional
   depends_on "little-cms2" => :optional
 
   conflicts_with "pdftohtml", "pdf2image", "xpdf",

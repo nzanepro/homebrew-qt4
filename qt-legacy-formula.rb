@@ -4,8 +4,8 @@ class QtLegacyFormula < Formula
   url "https://github.com/cartr/placeholder-repo/releases/download/999.0.0/placeholder-repo-999.0.0.tar.gz"
   sha256 "6166c138bfc80564e793fbc41c39b5e9e4c41ce4724fdba12396fbfed0887d3f"
 
-  depends_on "cartr/qt4/qt-webkit@2.3" => :recommended
-  depends_on "cartr/qt4/qt@4"
+  depends_on "nzanepro/qt4/qt-webkit@2.3" => :recommended
+  depends_on "nzanepro/qt4/qt@4"
   
   deprecated_option "without-webkit" => "without-qt-webkit@2.3"
 
@@ -16,8 +16,8 @@ class QtLegacyFormula < Formula
     recompile any software that uses Qt 4.
     
     If you wrote a script/package/formula that installs Qt 4, consider 
-    find-replacing "cartr/qt4/qt" with "cartr/qt4/qt-webkit@2.3" if you
-    need Webkit support or "cartr/qt4/qt@4" if you don't.
+    find-replacing "nzanepro/qt4/qt" with "nzanepro/qt4/qt-webkit@2.3" if you
+    need Webkit support or "nzanepro/qt4/qt@4" if you don't.
     
     
     EOS

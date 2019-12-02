@@ -18,7 +18,7 @@ class ShibokenAT12 < Formula
   end
 
   depends_on "cmake" => :build
-  depends_on "cartr/qt4/qt@4"
+  depends_on "nzanepro/qt4/qt@4"
 
   # don't use depends_on :python because then bottles install Homebrew's python
   option "without-python@2", "Build without python 2 support"

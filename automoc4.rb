@@ -13,7 +13,7 @@ class Automoc4 < Formula
   end
 
   depends_on "cmake" => :build
-  depends_on "cartr/qt4/qt@4"
+  depends_on "nzanepro/qt4/qt@4"
 
   # Patch needed to find Qt in Homebrew upstreamed but upstream version
   # does not apply. Won't be needed for next version.

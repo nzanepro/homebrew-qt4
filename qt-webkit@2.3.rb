@@ -5,13 +5,13 @@ class QtWebkitAT23 < Formula
   sha256 "c6cfa9d068f7eb024fee3f6c24f5b8b726997f669007587f35ed4a97d40097ca"
   revision 1
 
-  depends_on "cartr/qt4/qt@4"
+  depends_on "nzanepro/qt4/qt@4"
 
   # Put data and import files into this formula's cellar instead of installing them globally.
   patch :DATA
 
   def install
-    ENV["QTDIR"] = Formula["cartr/qt4/qt@4"].opt_prefix
+    ENV["QTDIR"] = Formula["nzanepro/qt4/qt@4"].opt_prefix
     ENV["INSTALL_DATA"] = "#{prefix}/etc/qt4"
     ENV["INSTALL_LIBS"] = lib
     system "Tools/Scripts/build-webkit", "--qt", "--no-webkit2", "--no-video", "--install-headers=#{include}", "--install-libs=#{lib}", "--minimal"
