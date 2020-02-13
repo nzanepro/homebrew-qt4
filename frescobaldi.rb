@@ -5,7 +5,7 @@ class Frescobaldi < Formula
   sha256 "b426bd53d54fdc4dfc16fcfbff957fdccfa319d6ac63614de81f6ada5044d3e6"
   revision 3
 
-  depends_on "python@2" if MacOS.version <= :snow_leopard
+  depends_on "nzanepro/qt4/python@2" if MacOS.version <= :snow_leopard
   depends_on "portmidi" => :optional
 
   # python-poppler-qt4 dependencies

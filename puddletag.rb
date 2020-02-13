@@ -15,7 +15,7 @@ class Puddletag < Formula
     sha256 "52b3b94916fe4943df8962f63534093a7f9a9b7f6c5e0ed4869d23b51ccd908f" => :mavericks
   end
 
-  depends_on "python@2" if MacOS.version <= :snow_leopard
+  depends_on "nzanepro/qt4/python@2" if MacOS.version <= :snow_leopard
   depends_on "nzanepro/qt4/pyqt@4"
   depends_on "chromaprint" => :recommended
 
