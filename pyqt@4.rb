@@ -8,7 +8,7 @@ class PyqtAT4 < Formula
   option "without-python@2", "Build without python 2 support"
   depends_on "python" => :optional
 
-  if build.without?("python") && build.without?("python@2")
+  if build.without?("python") && build.without?("nzanepro/qt4/python@2")
     odie "pyqt: --with-python must be specified when using --without-python@2"
   end
 
