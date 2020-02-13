@@ -22,7 +22,7 @@ class ShibokenAT12 < Formula
 
   # don't use depends_on :python because then bottles install Homebrew's python
   option "without-python@2", "Build without python 2 support"
-  depends_on "nzanepro/qt4/python@2" => :recommended if MacOS.version <= :snow_leopard
+  depends_on "python@2" => :recommended if MacOS.version <= :snow_leopard
   depends_on "python" => :optional
 
   def install

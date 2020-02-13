@@ -13,10 +13,10 @@ class Sip < Formula
     sha256 "bf79abc59421b46b43a95a87cb759c1178167d27e958850a1f625e52eb74461b" => :high_sierra
   end
 
-  depends_on "nzanepro/qt4/python@2"
+  depends_on "python@2"
 
   def install
-    ENV.prepend_path "PATH", Formula["nzanepro/qt4/python@2"].opt_libexec/"bin"
+    ENV.prepend_path "PATH", Formula["python@2"].opt_libexec/"bin"
     ENV.delete("SDKROOT") # Avoid picking up /Application/Xcode.app paths
 
     if build.head?
