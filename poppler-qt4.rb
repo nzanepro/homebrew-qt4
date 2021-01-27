@@ -31,10 +31,12 @@ class PopplerQt4 < Formula
     sha256 "1096a18161f263cccdc6d8a2eb5548c41ff8fcf9a3609243f1b6296abdf72872"
   end
 
-  needs :cxx11 if build.with?("qt@4") || MacOS.version < :mavericks
+  # commented out for linux testing
+  # needs :cxx11 if build.with?("qt@4") || MacOS.version < :mavericks
 
   def install
-    ENV.cxx11 if build.with?("qt@4") || MacOS.version < :mavericks
+    # commented out for linux testing
+    # ENV.cxx11 if build.with?("qt@4") || MacOS.version < :mavericks
 
     args = std_cmake_args + %w[
       -DENABLE_XPDF_HEADERS=ON
