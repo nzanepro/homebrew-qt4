@@ -32,11 +32,15 @@ class PopplerQt4 < Formula
   end
 
   # commented out for linux testing
-  # needs :cxx11 if build.with?("qt@4") || MacOS.version < :mavericks
+  if OS.mac?
+    needs :cxx11 if build.with?("qt@4") || MacOS.version < :mavericks
+  end
 
   def install
     # commented out for linux testing
-    # ENV.cxx11 if build.with?("qt@4") || MacOS.version < :mavericks
+    if OS.mac?
+      ENV.cxx11 if build.with?("qt@4") || MacOS.version < :mavericks
+    end
 
     args = std_cmake_args + %w[
       -DENABLE_XPDF_HEADERS=ON

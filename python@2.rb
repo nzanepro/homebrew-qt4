@@ -20,7 +20,7 @@ class PythonAT2 < Formula
         You can install them, if desired, with:
           xcode-select --install
     EOS
-    satisfy { MacOS::CLT.installed? }
+    satisfy { !OS.mac? || MacOS::CLT.installed? }
   end
 
   depends_on "pkg-config" => :build
@@ -44,8 +44,11 @@ class PythonAT2 < Formula
     sha256 "10c9da68765315ed98850f8e048347c3eb06dd81822dc2ab1d4fde9dc9702646"
   end
 
+
+
   def lib_cellar
-    prefix/"Frameworks/Python.framework/Versions/2.7/lib/python2.7"
+    prefix / (OS.mac? ? "Frameworks/Python.framework/Versions/#{xy}" : "") /
+      "lib/python#{xy}"
   end
 
   def site_packages_cellar
@@ -54,7 +57,7 @@ class PythonAT2 < Formula
 
   # The HOMEBREW_PREFIX location of site-packages.
   def site_packages
-    HOMEBREW_PREFIX/"lib/python2.7/site-packages"
+    HOMEBREW_PREFIX/"lib/python#{xy}/site-packages"
   end
 
   def install
@@ -68,17 +71,19 @@ class PythonAT2 < Formula
       --enable-ipv6
       --datarootdir=#{share}
       --datadir=#{share}
-      --enable-framework=#{frameworks}
+      #{OS.mac? ? "--enable-framework=#{frameworks}" : "--enable-shared"}
       --without-ensurepip
     ]
 
-    # See upstream bug report from 22 Jan 2018 "Significant performance problems
-    # with Python 2.7 built with clang 3.x or 4.x"
-    # https://bugs.python.org/issue32616
-    # https://github.com/Homebrew/homebrew-core/issues/22743
-    if DevelopmentTools.clang_build_version >= 802 &&
-       DevelopmentTools.clang_build_version < 902
-      args << "--without-computed-gotos"
+    if OS.mac?
+      # See upstream bug report from 22 Jan 2018 "Significant performance problems
+      # with Python 2.7 built with clang 3.x or 4.x"
+      # https://bugs.python.org/issue32616
+      # https://github.com/Homebrew/homebrew-core/issues/22743
+      if DevelopmentTools.clang_build_version >= 802 &&
+         DevelopmentTools.clang_build_version < 902
+        args << "--without-computed-gotos"
+      end
     end
 
     args << "--without-gcc" if ENV.compiler == :clang
@@ -87,7 +92,7 @@ class PythonAT2 < Formula
     ldflags  = []
     cppflags = []
 
-    if MacOS.sdk_path_if_needed
+    if OS.mac? && MacOS.sdk_path_if_needed
       # Help Python's build system (setuptools/pip) to build things on SDK-based systems
       # The setup.py looks at "-isysroot" to get the sysroot (and not at --sysroot)
       cflags  << "-isysroot #{MacOS.sdk_path}" << "-I#{MacOS.sdk_path}/usr/include"
@@ -137,7 +142,7 @@ class PythonAT2 < Formula
     ENV.deparallelize do
       # Tell Python not to install into /Applications
       system "make", "install", "PYTHONAPPSDIR=#{prefix}"
-      system "make", "frameworkinstallextras", "PYTHONAPPSDIR=#{pkgshare}"
+      system "make", "frameworkinstallextras", "PYTHONAPPSDIR=#{pkgshare}" if OS.mac?
     end
 
     # Fixes setting Python build flags for certain software
@@ -149,22 +154,26 @@ class PythonAT2 < Formula
     end
 
     # Prevent third-party packages from building against fragile Cellar paths
-    inreplace [lib_cellar/"_sysconfigdata.py",
-               lib_cellar/"config/Makefile",
-               frameworks/"Python.framework/Versions/Current/lib/pkgconfig/python-2.7.pc"],
-              prefix, opt_prefix
+    if OS.mac?
+      inreplace [lib_cellar/"_sysconfigdata.py",
+                 lib_cellar/"config/Makefile",
+                 frameworks/"Python.framework/Versions/Current/lib/pkgconfig/python-2.7.pc"],
+                prefix, opt_prefix
+    end
 
     # Symlink the pkgconfig files into HOMEBREW_PREFIX so they're accessible.
-    (lib/"pkgconfig").install_symlink Dir[frameworks/"Python.framework/Versions/Current/lib/pkgconfig/*"]
+    (lib/"pkgconfig").install_symlink Dir["#{frameworks}/Python.framework/Versions/#{xy}/lib/pkgconfig/*"]
 
     # Remove 2to3 because Python 3 also installs it
     rm bin/"2to3"
 
-    # A fix, because python and python@2 both want to install Python.framework
-    # and therefore we can't link both into HOMEBREW_PREFIX/Frameworks
-    # https://github.com/Homebrew/homebrew/issues/15943
-    ["Headers", "Python", "Resources"].each { |f| rm(prefix/"Frameworks/Python.framework/#{f}") }
-    rm prefix/"Frameworks/Python.framework/Versions/Current"
+    if OS.mac?
+      # A fix, because python and python@2 both want to install Python.framework
+      # and therefore we can't link both into HOMEBREW_PREFIX/Frameworks
+      # https://github.com/Homebrew/homebrew/issues/15943
+      ["Headers", "Python", "Resources"].each { |f| rm(prefix/"Frameworks/Python.framework/#{f}") }
+      rm prefix/"Frameworks/Python.framework/Versions/Current"
+    end
 
     # Remove the site-packages that Python created in its Cellar.
     site_packages_cellar.rmtree
@@ -172,6 +181,14 @@ class PythonAT2 < Formula
     (libexec/"setuptools").install resource("setuptools")
     (libexec/"pip").install resource("pip")
     (libexec/"wheel").install resource("wheel")
+  end
+
+  def xy
+    if OS.mac? && prefix.exist?
+      (prefix/"Frameworks/Python.framework/Versions").children.min.basename.to_s
+    else
+      version.to_s[/^\d\.\d/]
+    end
   end
 
   def post_install
