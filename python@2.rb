@@ -24,10 +24,18 @@ class PythonAT2 < Formula
   end
 
   depends_on "pkg-config" => :build
+  depends_on arch: :x86_64
   depends_on "gdbm"
   depends_on "openssl@1.1"
   depends_on "readline"
   depends_on "sqlite"
+  depends_on "xz"
+
+  uses_from_macos "bzip2"
+  uses_from_macos "libffi"
+  uses_from_macos "ncurses"
+  uses_from_macos "xz"
+  uses_from_macos "zlib"
 
   resource "setuptools" do
     url "https://files.pythonhosted.org/packages/f4/d5/a6c19dcbcbc267aca376558797f036d9bcdff344c9f785fe7d0fe9a5f2a7/setuptools-41.4.0.zip"
@@ -61,6 +69,8 @@ class PythonAT2 < Formula
   end
 
   def install
+    ENV.permit_weak_imports
+
     # Unset these so that installing pip and setuptools puts them where we want
     # and not into some other Python the user has installed.
     ENV["PYTHONHOME"] = nil
@@ -88,6 +98,10 @@ class PythonAT2 < Formula
 
     args << "--without-gcc" if ENV.compiler == :clang
 
+    # Required for the _ctypes module
+    # see https://github.com/Linuxbrew/homebrew-core/pull/1007#issuecomment-252421573
+    args << "--with-system-ffi" unless OS.mac?
+
     cflags   = []
     ldflags  = []
     cppflags = []
@@ -104,7 +118,20 @@ class PythonAT2 < Formula
     end
 
     # Avoid linking to libgcc https://code.activestate.com/lists/python-dev/112195/
-    args << "MACOSX_DEPLOYMENT_TARGET=#{MacOS.version}"
+    args << "MACOSX_DEPLOYMENT_TARGET=#{MacOS.version}" unless OS.mac?
+
+    # Python's setup.py parses CPPFLAGS and LDFLAGS to learn search
+    # paths for the dependencies of the compiled extension modules.
+    # See Linuxbrew/linuxbrew#420, Linuxbrew/linuxbrew#460, and Linuxbrew/linuxbrew#875
+    unless OS.mac?
+      if build.bottle?
+        # Configure Python to use cc and c++ to build extension modules.
+        ENV["CC"] = "cc"
+        ENV["CXX"] = "c++"
+      end
+      cppflags << ENV.cppflags << " -I#{HOMEBREW_PREFIX}/include"
+      ldflags << ENV.ldflags << " -L#{HOMEBREW_PREFIX}/lib"
+    end
 
     # We want our readline and openssl! This is just to outsmart the detection code,
     # superenv handles that cc finds includes/libs!
